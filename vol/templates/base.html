@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Rust zidian manager</title>
+    <link rel="shortcut icon" type="image/png" href="/assets/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="/assets/style.css" />
+    <script type="text/javascript" src="/assets/htmx.min.js"></script>
+
+  </head>
+
+  <body>
+    <div id="layout-wrapper">
+      <div id="header">
+        <div id="logo">
+          <a href="/"><img src="/assets/header.png" height="70" width="122"/></a>
+        </div>
+        <div id="nav">
+          <ul class="navig">
+            <li hx-trigger="click" hx-get="/size" hx-target="#content" hx-swap="innerHTML">
+              Size
+            </li>
+            <li onmouseover="enablemenu('lists')" onmouseout="hidemenu('lists')">
+              Get lists
+              <!-- onmouseover to restore the hover behavior after hx-on visbility cancellation -->
+              <ul id="lists">
+                <li hx-trigger="click" hx-get="/getziform" hx-target="#content" hx-swap="innerHTML"
+                    hx-on::before-request="hidemenu('lists')">
+                  Zi => Pinyin (shortcut = z)
+                </li>
+                <li hx-trigger="click" hx-get="/getpyform" hx-target="#content" hx-swap="innerHTML"
+                    hx-on::before-request="hidemenu('lists')">
+                  Pinyin => Zi (shortcut = p)
+                </li>
+                <li class="shortitem" hx-trigger="click" hx-get="/listdic" hx-target="#content" hx-swap="innerHTML"
+                    hx-on::before-request="hidemenu('lists')">
+                  <span>List dictionary</span>
+                </li>
+              </ul><!-- end "lists" ul -->
+            </li><!-- end "lists" li -->
+            <li class="menuitem" style="background-color: darkred" id="wht" hx-trigger="click" hx-get="/zistring" hx-target="#content" hx-swap="innerHTML">
+                Write hanzi text
+            </li>
+            <li class="menuitem" hx-trigger="click" hx-get="/getparseform" hx-target="#content" hx-swap="innerHTML">
+              Parse zi string
+            </li>
+          </ul>
+        </div><!-- end nav -->
+      </div><!-- end header -->
+      <div style="clear: both"></div>
+      <h1 class="title">Chinese character writer</h1>
+      <br/>
+            {% block content %} {% endblock content %}
+    </div><!-- end layout-wrapper -->
+
+    <div id="footer">
+      See source code at
+        <a href="https://github.com/francisstephan/rust_character_dictionary" target="_blank">
+          https://github.com/francisstephan</a>
+            <br /><br />
+      For other languages, see also
+        <a href="https://www.eludev.fr/keyboards/" target="_blank">
+          https://www.eludev.fr/keyboards/</a>
+    </div><!-- end footer -->
+
+    <script>
+      function hidemenu(menu) {
+                //document.getElementById(menu).style.visibility='hidden';
+                document.getElementById(menu).style.opacity = 0; // use opacity for hiding
+      }
+      function enablemenu(menu) {
+                //document.getElementById(menu).style.visibility='visible';
+                document.getElementById(menu).style.opacity = 1;
+      }
+      function shortkey(e) {
+        if (e.keyCode == 80) // key p : pinyin => zi
+          htmx.ajax("GET", "/getpyform", {target: "#content", swap: "innerHTML",});
+        if (e.keyCode == 90) // key z : zi => pinyin
+          htmx.ajax("GET", "/getziform", {target: "#content", swap: "innerHTML",});
+      }
+      function esckey(e) {
+        if (e.keyCode == 27) // key esc : cancel form
+          htmx.ajax("GET", "/cancel", {target: "#content", swap: "innerHTML",});
+      }
+      function ajustkey() {
+        contenu = document.getElementById("content");
+        if (contenu.innerHTML.includes("<form ")) {
+                    // if form, authorize Esc and remove z, s and p listeners
+                    document.body.removeEventListener("keydown", shortkey);
+                    document.body.addEventListener("keydown", esckey);
+        } else {
+                    // if not form, remove Esc (there is nothing to cancel) and add z, s and p listeners
+                    document.body.addEventListener("keydown", shortkey);
+                    document.body.removeEventListener("keydown", esckey);
+        }
+      }
+      window.onload = function () {
+        elem = document.body;
+        elem.addEventListener("keydown", shortkey); // initially enable z, s and p shortcut keys
+        elem.addEventListener("htmx:afterRequest", ajustkey);
+        // after ajax request performed by htmx, adjust keydown listeners
+        elem.addEventListener("htmx:afterRequest", function (evt) {
+                    contenu = document.getElementById("content");
+                    if (evt.detail.failed && evt.detail.xhr) {
+                        // display error message within the document (and not only the console)
+                        // Server error with response contents, equivalent to htmx:responseError
+                        console.warn("Server error", evt.detail);
+                        const xhr = evt.detail.xhr;
+                        contenu.innerHTML = `Unexpected server error: ${xhr.status} - ${xhr.statusText}`;
+                    }
+        });
+      };
+    </script>
+    <script type="text/javascript" src="/assets/chwriter.js"></script>
+  </body>
+</html>
