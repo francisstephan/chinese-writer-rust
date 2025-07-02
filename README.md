@@ -2,6 +2,8 @@
 
 This is basically a port to rust language of my Chinese-character-writer, written in GO.
 
+Watch live at [https://rust-chinesewriter.fly.dev/](https://rust-chinesewriter.fly.dev/)
+
 Here are some comments on my experience in developing this app.
 
 ## 1. axum vs actix-web ?

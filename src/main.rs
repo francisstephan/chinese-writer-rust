@@ -14,14 +14,14 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
-    unsafe {
+    /* unsafe {
         std::env::set_var("DATABASE_URL", "sqlite://vol/zidian.db");
     }
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"); */
     tracing_subscriber::fmt()
         .with_max_level(Level::DEBUG)
         .init();
-    let pool = SqlitePool::connect(&database_url).await.unwrap();
+    let pool = SqlitePool::connect("sqlite://vol/zidian.db").await.unwrap();
     let router: Router<()> = Router::new()
         .route("/", get(handlers::index))
         .route("/size", get(handlers::size))
