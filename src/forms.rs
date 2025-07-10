@@ -43,7 +43,8 @@ pub fn whs() -> String {
 
         <button class = "Addzi" onclick='copyTextToClipboard()' >Copy to clipboard</button>
         <button class = "Addzi" onclick='reset()' >Reset</button>
-        <button class = "Addzi" onclick="lookup(document.getElementById('zistring').value)" >Google Translate</button>
+        <button class = "Addzi" onclick="lookup(document.getElementById('zistring').value)" >Google Translate text</button>
+        <button class = "Addzi" onclick="lookupWrittenChinese(document.getElementById('zistring').value)" >Lookup Written Chinese</button>
         <div id="zilist"></div>
     "##;
     String::from(form)

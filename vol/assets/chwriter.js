@@ -49,6 +49,13 @@ function lookup(text) {
   if (elem) elem.focus();
 }
 
+function lookupWrittenChinese(text) {
+  var url = "https://dictionary.writtenchinese.com/#sk=" + text + "&svt=pinyin";
+  window.open(url);
+  var elem = document.getElementById("pinyin");
+  if (elem) elem.focus();
+}
+
 function reset() {
   var entree = document.getElementById("zistring");
   if (entree != null) entree.value = "";

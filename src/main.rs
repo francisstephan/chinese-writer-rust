@@ -14,10 +14,6 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
-    /* unsafe {
-        std::env::set_var("DATABASE_URL", "sqlite://vol/zidian.db");
-    }
-    let database_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set"); */
     tracing_subscriber::fmt()
         .with_max_level(Level::DEBUG)
         .init();
@@ -37,6 +33,7 @@ async fn main() {
         .route("/stringparse", post(handlers::stringparse))
         .with_state(Arc::new(AppState { db: pool.clone() }))
         .nest_service("/assets", ServeDir::new("./vol/assets"));
+
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
     axum::serve(listener, router).await.unwrap();
 }

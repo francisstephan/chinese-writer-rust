@@ -20,7 +20,7 @@ Both play very well with the `tera` templating system, and with the `sqlx` SQL c
 
 I wrote about using the tera templating system [here](https://medium.com/@francis.stephan/developing-a-web-app-with-rust-part-3-tera-templating-system-and-htmx-531e49e28ca2).
 
-One interesting point, for which I could no longer find adequate documention, is the concept of subtemplates. Here is my templates tree:
+One interesting point, for which I could no longer find adequate documention, is the concept of subtemplates. Here is my template tree:
 
 
 ![template tree:](vol/assets/tree.png)
@@ -28,14 +28,11 @@ One interesting point, for which I could no longer find adequate documention, is
 The index.html file is as follows:
 ```html
 {% extends "base.html" %}
-
 {% block content %}
-
 <div id="content">
   Select a menu item hereabove to get started
   <p>{{ contenu }}</p>
 </div>
-
 {% endblock content %}
 ```
 
@@ -53,7 +50,6 @@ I have two subtemplates: parsed.html and zilist.html, which are in the 'componen
     <tr><td>{{zi.strokes}}</td><td>{{zi.pinyin_ton}}</td><td>{{zi.unicode}}</td><td>{{zi.hanzi}}</td><td>{{zi.sens}}</td></tr>
     {% endfor %}
     </table>
-
   {% endif %}
 </div>
 ```
@@ -71,13 +67,13 @@ pub async fn pylist(
     let disp = dbase::list_for_py(client, String::from(chain)).await; // query database
     ctx.insert("dico", &disp);
     let output = TERA.render("components/zilist.html", &ctx); // tera rendering
-    Html(output.unwrap()) // html page reloaded
+    Html(output.unwrap()) // page update as specified by htmx event
 }
 ```
 
 The `{{query}}` field in the template is dealt with in `ctx.insert("query", &chain);` and the `dico` field in `ctx.insert("dico", &disp);` .
 
-### 2.2 tera rendering vs direct rendering::
+### 2.2 tera rendering vs direct rendering:
 
 The rendering mode we just saw I call "tera rendering":
 
@@ -85,7 +81,7 @@ The rendering mode we just saw I call "tera rendering":
     let output = TERA.render("components/zilist.html", &ctx);
     Html(output.unwrap())
 ```
-Now there are other content that do not need tera rendering. Take for instance in the program's menu the `size` tab, which triggers an htmx call as follows :
+Now there are other contents that do not need tera rendering. Take for instance in the program's menu the `size` tab, which triggers an htmx call as follows :
 ```html
 <li hx-trigger="click" hx-get="/size" hx-target="#content" hx-swap="innerHTML">
 ```
@@ -93,7 +89,7 @@ This reads that a click on the element triggers an htmx event, calling the /size
 ```rust
 pub async fn size(State(client): State<Arc<AppState>>) -> impl IntoResponse {
     let size = dbase::getsize(client).await;  // query database to get size
-    let metadata = fs::metadata("vol/zidian.db").expect("Failed to read file metadata"); 
+    let metadata = fs::metadata("vol/zidian.db").expect("Failed to read file metadata");
     let time = metadata.modified().unwrap();
     use chrono::prelude::{DateTime, Utc};
     let dt: DateTime<Utc> = time.clone().into(); // sqlite.db's last update
@@ -158,4 +154,4 @@ COPY ./vol ./vol
 EXPOSE 3001
 ENTRYPOINT ["/chinesewriter"]
 ```
-The idea is to first copy the Cargo.toml and Cargo.lock files into the WORKDIR, and then to compile a dummy src/main.rs, meaning all the dependencies in Cargo.toml get compiled and cached, available for later Docker builds. However, I did not follow his recommendation to use the `scratch` distro for the build stage, since this implies using x86_64-unknown-linux-musl. The one I use, `gcr.io/distroless/cc`, is compatible with standard rust libraries and the resulting image is only 11 MB large, which is quite acceptable.
+The idea is to first copy the Cargo.toml and Cargo.lock files into the WORKDIR, and then to compile a dummy src/main.rs, so that all the dependencies in Cargo.toml get compiled and cached, available for later Docker builds. However, I did not follow Stefan's recommendation to use the `scratch` distro for the build stage, since this implies using x86_64-unknown-linux-musl. The one I use, `gcr.io/distroless/cc`, is compatible with standard rust libraries and the resulting image is only 11 MB large, which is quite acceptable.
