@@ -85,7 +85,7 @@ Now there are other contents that do not need tera rendering. Take for instance 
 ```html
 <li hx-trigger="click" hx-get="/size" hx-target="#content" hx-swap="innerHTML">
 ```
-This reads that a click on the element triggers an htmx event, calling the /size route; the div with id = `content` will be overwritten by the anwser, will fill the div's innerHTML. The /size handler reads as follows:
+This reads that a click on the element triggers an htmx event, calling the /size route; the div with id = `content` will be overwritten by the anwser, which will fill the div's innerHTML. The /size handler reads as follows:
 ```rust
 pub async fn size(State(client): State<Arc<AppState>>) -> impl IntoResponse {
     let size = dbase::getsize(client).await;  // query database to get size
@@ -154,4 +154,4 @@ COPY ./vol ./vol
 EXPOSE 3001
 ENTRYPOINT ["/chinesewriter"]
 ```
-The idea is to first copy the Cargo.toml and Cargo.lock files into the WORKDIR, and then to compile a dummy src/main.rs, so that all the dependencies in Cargo.toml get compiled and cached, available for later Docker builds. However, I did not follow Stefan's recommendation to use the `scratch` distro for the build stage, since this implies using x86_64-unknown-linux-musl. The one I use, `gcr.io/distroless/cc`, is compatible with standard rust libraries and the resulting image is only 11 MB large, which is quite acceptable.
+The idea is to first copy the Cargo.toml and Cargo.lock files into the WORKDIR, and then to compile a dummy src/main.rs, so that all the dependencies in Cargo.toml get compiled and cached, available for later Docker builds. However, I did not follow Stefan's recommendation to use the `scratch` distro for the build stage, since this implies using x86_64-unknown-linux-musl. The one I use, `gcr.io/distroless/cc`, is compatible with standard rust libraries and the resulting compressed image is only 15 MB large, which is quite acceptable.
