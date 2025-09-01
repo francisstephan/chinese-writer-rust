@@ -33,7 +33,6 @@ async fn main() {
         .route("/stringparse", post(handlers::stringparse))
         .with_state(Arc::new(AppState { db: pool.clone() }))
         .nest_service("/assets", ServeDir::new("./vol/assets"));
-
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3001").await.unwrap();
     axum::serve(listener, router).await.unwrap();
 }

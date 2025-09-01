@@ -55,7 +55,7 @@
 
     <div id="footer">
       See source code at
-        <a href="https://github.com/francisstephan/rust_character_dictionary" target="_blank">
+        <a href="https://github.com/francisstephan/chinese-writer-rust" target="_blank">
           https://github.com/francisstephan</a>
             <br /><br />
       For other languages, see also
@@ -77,6 +77,8 @@
           htmx.ajax("GET", "/getpyform", {target: "#content", swap: "innerHTML",});
         if (e.keyCode == 90) // key z : zi => pinyin
           htmx.ajax("GET", "/getziform", {target: "#content", swap: "innerHTML",});
+        if (e.keyCode == 83) // key s : parse string
+          htmx.ajax("GET", "/getparseform", {target: "#content", swap: "innerHTML",});
       }
       function esckey(e) {
         if (e.keyCode == 27) // key esc : cancel form
