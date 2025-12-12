@@ -50,7 +50,7 @@ function lookup(text) {
 }
 
 function lookupWrittenChinese(text) {
-  var url = "https://dictionary.writtenchinese.com/#sk=" + text + "&svt=pinyin";
+  var url = "https://hanzii.net/search/word/" + text + "?hl=en";
   window.open(url);
   var elem = document.getElementById("pinyin");
   if (elem) elem.focus();
