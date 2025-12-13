@@ -1,0 +1,16 @@
+<div id="content">
+  <h2>Quiz result for character {{ hanzi }} :</h2>
+
+  <table><tr><td>Strokes</td><td>Pinyin</td><td>Unicode</td><td>Character</td><td>Translation</td></tr>
+
+  {% for zi in dico %}
+  <tr><td>{{zi.strokes}}</td><td>{{zi.pinyin_ton}}</td><td>{{zi.unicode}}</td><td>{{zi.hanzi}}</td>
+      <td>{{zi.sens}}</td></tr>
+  {% endfor %}
+  </table>
+
+  <button class='menubouton' autofocus style="margin-left:40px; margin-top: 20px;"
+      hx-get='askquiz' hx-target="#content" hx-swap="innerHTML">
+      Try another quiz !
+  </button>
+</div>

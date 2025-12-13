@@ -37,7 +37,7 @@ pub struct ZiStrData {
     pub zistr: String,
 }
 
-pub async fn getsize(client: Arc<AppState>) -> i64 {
+pub async fn getsize(client: &Arc<AppState>) -> i64 {
     let result: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM pyhz")
         .fetch_one(&client.db)
         .await
@@ -142,4 +142,18 @@ pub async fn zi_to_py(data: &Arc<AppState>, carac: char) -> Vec<String> {
         disp.push(pinyindata.pinyin_ton.clone());
     }
     disp
+}
+
+pub async fn zi_from_linenum(data: &Arc<AppState>, linenum: i64) -> char {
+    let query = format!("SELECT unicode FROM pyhz LIMIT 1 OFFSET {}", linenum);
+    let result = sqlx::query_as::<_, (String,)>(&query)
+        .fetch_one(&data.db)
+        .await;
+    match result {
+        Ok((unicodestring,)) => {
+            let unicode = u32::from_str_radix(unicodestring.as_str(), 16).unwrap();
+            char::from_u32(unicode).unwrap()
+        }
+        _ => '0',
+    }
 }

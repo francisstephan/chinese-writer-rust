@@ -1,10 +1,10 @@
 use crate::dbase;
 use crate::forms;
 use axum::Form;
-use axum::extract::State;
+use axum::extract::{Path, State};
 use axum::response::{Html, IntoResponse};
 use std::fs;
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 use tera::Tera;
 
 use crate::AppState;
@@ -21,10 +21,16 @@ lazy_static! {
     };
 }
 
+static DBSIZE: OnceLock<i64> = OnceLock::new();
+
 pub async fn index(State(client): State<Arc<AppState>>) -> impl IntoResponse {
-    let size = dbase::getsize(client).await;
+    if DBSIZE.get().is_none() {
+        let size = dbase::getsize(&client).await;
+        let _ = DBSIZE.get_or_init(|| size);
+    }
+    let size = DBSIZE.get().unwrap();
     let mut context = tera::Context::new();
-    if size > 0 {
+    if *size > 0 {
         context.insert("contenu", "Connected to database");
     } else {
         context.insert("contenu", "Could not connect to database");
@@ -33,9 +39,9 @@ pub async fn index(State(client): State<Arc<AppState>>) -> impl IntoResponse {
     Html(output.unwrap())
 }
 
-pub async fn size(State(client): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn size() -> impl IntoResponse {
     // https://stackoverflow.com/questions/669092/sqlite-getting-number-of-rows-in-a-database
-    let size = dbase::getsize(client).await;
+    let size = DBSIZE.get().unwrap();
     let metadata = fs::metadata("vol/zidian.db").expect("Failed to read file metadata");
     let time = metadata.modified().unwrap();
     use chrono::prelude::{DateTime, Utc};
@@ -169,5 +175,32 @@ pub async fn stringparse(
     ctx.insert("unknownzi", &unknown);
 
     let output = TERA.render("components/parsed.html", &ctx);
+    Html(output.unwrap())
+}
+
+pub async fn askquiz(State(client): State<Arc<AppState>>) -> impl IntoResponse {
+    // , carac: dbase::CharData
+    let size = DBSIZE.get().unwrap() - 1; // max offset = dbsize -1
+    let mut numlin: i64 = (&client.next() * (size as f64)).round() as i64;
+    if numlin >= size {
+        numlin = size - 1;
+    }
+    let zi = dbase::zi_from_linenum(&client, numlin).await;
+    let mut ctx = tera::Context::new();
+    ctx.insert("hanzi", &zi);
+    let output = TERA.render("components/askquiz.html", &ctx);
+    Html(output.unwrap())
+}
+
+pub async fn ansquiz(
+    State(client): State<Arc<AppState>>,
+    Path(hanzi): Path<String>,
+) -> impl IntoResponse {
+    let zi: char = hanzi.chars().next().unwrap();
+    let mut ctx = tera::Context::new();
+    ctx.insert("hanzi", &hanzi);
+    let disp = dbase::list_for_zi(client, format!("{:X}", zi as u32)).await;
+    ctx.insert("dico", &disp);
+    let output = TERA.render("components/ansquiz.html", &ctx);
     Html(output.unwrap())
 }

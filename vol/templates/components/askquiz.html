@@ -1,0 +1,10 @@
+<div id="content">
+  <h2>Test your knowledge of hanzi:</h2>
+  Guess the pinyin and meaning of the following hanzi (汉字) :
+  <p id="kanji">{{ hanzi }}
+      <button class='menubouton' style="margin-left:40px" autofocus
+          hx-get='ansquiz/{{ hanzi }}' hx-target="#content" hx-swap="innerHTML">
+          Show result
+      </button>
+  </p>
+</div>
