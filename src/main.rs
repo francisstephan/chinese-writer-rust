@@ -34,6 +34,7 @@ async fn main() {
         .init();
     let pool = SqlitePool::connect("sqlite://vol/zidian.db").await.unwrap();
     let ap: AppState = AppState::new(pool);
+
     let router: Router<()> = Router::new()
         .route("/", get(handlers::index))
         .route("/size", get(handlers::size))
