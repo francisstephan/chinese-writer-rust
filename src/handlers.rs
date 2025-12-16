@@ -41,8 +41,7 @@ pub async fn index(State(client): State<Arc<AppState>>) -> impl IntoResponse {
 
 pub async fn size(State(client): State<Arc<AppState>>) -> impl IntoResponse {
     if DBSIZE.get().is_none() {
-        let size = dbase::getsize(&client).await;
-        let _ = DBSIZE.get_or_init(|| size);
+        index(State(client)).await;
     }
     let size = DBSIZE.get().unwrap();
 
@@ -184,14 +183,11 @@ pub async fn stringparse(
 
 pub async fn askquiz(State(client): State<Arc<AppState>>) -> impl IntoResponse {
     if DBSIZE.get().is_none() {
-        let size = dbase::getsize(&client).await;
-        let _ = DBSIZE.get_or_init(|| size);
+        index(State(client.clone())).await;
     }
     let size = DBSIZE.get().unwrap() - 1; // max offset = dbsize -1
-    let mut numlin: i64 = (&client.next() * (size as f64)).round() as i64;
-    if numlin >= size {
-        numlin = size - 1;
-    }
+    let numlin: i64 = (&client.next() * (size as f64)).round() as i64;
+
     let zi = dbase::zi_from_linenum(&client, numlin).await;
     let mut ctx = tera::Context::new();
     ctx.insert("hanzi", &zi);
