@@ -1,7 +1,6 @@
+use crate::AppState;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-
-use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct CharData {
@@ -145,6 +144,7 @@ pub async fn zi_to_py(data: &Arc<AppState>, carac: char) -> Vec<String> {
 }
 
 pub async fn zi_from_linenum(data: &Arc<AppState>, linenum: i64) -> char {
+    // https://www.geeksforgeeks.org/sqlite/how-to-select-the-nth-row-in-a-sqlite-database-table/
     let query = format!("SELECT unicode FROM pyhz LIMIT 1 OFFSET {}", linenum);
     let result = sqlx::query_as::<_, (String,)>(&query)
         .fetch_one(&data.db)

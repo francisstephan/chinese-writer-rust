@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-axum = { version = "0.8.4", features = ["tokio", "http1"] }
+axum = { version = "0.8.7", features = ["tokio", "http1"] }
 tokio = { version = "1.45.1", features = ["full"] }
 tower-http = { version = "0.6.6", features=["fs","trace"] }
 sqlx = { version = "0.8.6", features = ["sqlite", "runtime-tokio"] }
@@ -15,3 +15,5 @@ chrono = "0.4.41"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"]}
 rand = "0.9.2"
+axum-htmx = { version = "0.8.1", features = ["guards","auto-vary"] }
+tower = "0.5.2"

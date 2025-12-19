@@ -24,13 +24,16 @@ lazy_static! {
 static DBSIZE: OnceLock<i64> = OnceLock::new();
 
 pub async fn index(State(client): State<Arc<AppState>>) -> impl IntoResponse {
-    if DBSIZE.get().is_none() {
-        let size = dbase::getsize(&client).await;
-        let _ = DBSIZE.get_or_init(|| size);
-    }
-    let size = DBSIZE.get().unwrap();
+    let size: i64 = match DBSIZE.get() {
+        Some(dim) => *dim,
+        None => {
+            let dim = dbase::getsize(&client).await;
+            let _ = DBSIZE.get_or_init(|| dim);
+            dim
+        }
+    };
     let mut context = tera::Context::new();
-    if *size > 0 {
+    if size > 0 {
         context.insert("contenu", "Connected to database");
     } else {
         context.insert("contenu", "Could not connect to database");
@@ -40,11 +43,14 @@ pub async fn index(State(client): State<Arc<AppState>>) -> impl IntoResponse {
 }
 
 pub async fn size(State(client): State<Arc<AppState>>) -> impl IntoResponse {
-    if DBSIZE.get().is_none() {
-        index(State(client)).await;
-    }
-    let size = DBSIZE.get().unwrap();
-
+    let size: i64 = match DBSIZE.get() {
+        Some(dim) => *dim,
+        None => {
+            let dim = dbase::getsize(&client).await;
+            let _ = DBSIZE.get_or_init(|| dim);
+            dim
+        }
+    };
     let metadata = fs::metadata("vol/zidian.db").expect("Failed to read file metadata");
     let time = metadata.modified().unwrap();
     use chrono::prelude::{DateTime, Utc};
@@ -58,20 +64,20 @@ pub async fn size(State(client): State<Arc<AppState>>) -> impl IntoResponse {
 }
 
 pub async fn getpyform() -> impl IntoResponse {
-    forms::pyform().into_response()
+    forms::pyform()
 }
 
 pub async fn getziform() -> impl IntoResponse {
-    forms::ziform().into_response()
+    forms::ziform()
 }
 
 pub async fn getparseform() -> impl IntoResponse {
-    forms::zistringform().into_response()
+    forms::zistringform()
 }
 
 pub async fn zilist(
     State(client): State<Arc<AppState>>,
-    Form(zi): Form<dbase::CharData>, // caution:the extractor should follow the state
+    Form(zi): Form<dbase::CharData>, // caution: the state extractor must be first param
 ) -> impl IntoResponse {
     let chain = &zi.carac;
     let first: char = chain.chars().next().unwrap();
@@ -107,11 +113,11 @@ pub async fn listdic(State(data): State<Arc<AppState>>) -> impl IntoResponse {
 }
 
 pub async fn cancel() -> impl IntoResponse {
-    String::from("Form canceled").into_response()
+    String::from("Form canceled")
 }
 
 pub async fn writehanzistring() -> impl IntoResponse {
-    forms::whs().into_response()
+    forms::whs()
 }
 
 pub async fn candidatelist(
@@ -127,7 +133,7 @@ pub async fn candidatelist(
         resp = String::from("<br /><br />Select one hanzi from this list:</br>");
         resp.push_str(&answer)
     }
-    resp.into_response()
+    resp
 }
 
 pub async fn stringparse(
@@ -182,11 +188,16 @@ pub async fn stringparse(
 }
 
 pub async fn askquiz(State(client): State<Arc<AppState>>) -> impl IntoResponse {
-    if DBSIZE.get().is_none() {
-        index(State(client.clone())).await;
-    }
-    let size = DBSIZE.get().unwrap() - 1; // max offset = dbsize -1
-    let numlin: i64 = (&client.next() * (size as f64)).round() as i64;
+    let size: i64 = match DBSIZE.get() {
+        Some(dim) => *dim,
+        None => {
+            let dim = dbase::getsize(&client).await;
+            let _ = DBSIZE.get_or_init(|| dim);
+            dim
+        }
+    };
+
+    let numlin: i64 = (&client.next() * (size as f64)).round() as i64; // get next pseudo random number
 
     let zi = dbase::zi_from_linenum(&client, numlin).await;
     let mut ctx = tera::Context::new();
