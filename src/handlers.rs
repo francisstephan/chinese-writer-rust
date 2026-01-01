@@ -28,8 +28,7 @@ pub async fn index(State(client): State<Arc<AppState>>) -> impl IntoResponse {
         Some(dim) => *dim,
         None => {
             let dim = dbase::getsize(&client).await;
-            let _ = DBSIZE.get_or_init(|| dim);
-            dim
+            *DBSIZE.get_or_init(|| dim)
         }
     };
     let mut context = tera::Context::new();
@@ -47,8 +46,7 @@ pub async fn size(State(client): State<Arc<AppState>>) -> impl IntoResponse {
         Some(dim) => *dim,
         None => {
             let dim = dbase::getsize(&client).await;
-            let _ = DBSIZE.get_or_init(|| dim);
-            dim
+            *DBSIZE.get_or_init(|| dim)
         }
     };
     let metadata = fs::metadata("vol/zidian.db").expect("Failed to read file metadata");
@@ -144,7 +142,7 @@ pub async fn stringparse(
     let mut chars = chain.chars();
     let mut parsed = String::new();
     let mut unknown = Vec::<String>::new();
-    let mut nonzi: bool = false; // special fromatting when first non zi character in sequence
+    let mut nonzi: bool = false; // special formatting when first non zi character in sequence
     while let Some(carac) = chars.next() {
         // 1. If carac is not a chinese character or is a punctuation mark, simply append it to parsed
         if (carac as i64) < 0x2000
@@ -192,8 +190,7 @@ pub async fn askquiz(State(client): State<Arc<AppState>>) -> impl IntoResponse {
         Some(dim) => *dim,
         None => {
             let dim = dbase::getsize(&client).await;
-            let _ = DBSIZE.get_or_init(|| dim);
-            dim
+            *DBSIZE.get_or_init(|| dim)
         }
     };
 

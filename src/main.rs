@@ -1,5 +1,4 @@
 use axum::{Router, routing::get, routing::post};
-use axum_htmx::HxRequestGuardLayer;
 use rand::{Rng, SeedableRng, rngs::StdRng};
 use sqlx::{Pool, Sqlite, sqlite::SqlitePool};
 use std::sync::{Arc, Mutex};
@@ -10,17 +9,16 @@ mod dbase;
 mod forms;
 mod handlers;
 
-#[derive(Clone)]
 pub struct AppState {
     db: SqlitePool,
-    rn: Arc<Mutex<StdRng>>,
+    rn: Mutex<StdRng>,
 }
 impl AppState {
     fn new(pool: Pool<Sqlite>) -> Self {
         let rng = StdRng::from_os_rng();
         Self {
             db: pool.clone(),
-            rn: Arc::new(Mutex::new(rng)),
+            rn: Mutex::new(rng),
         }
     }
     fn next(&self) -> f64 {
