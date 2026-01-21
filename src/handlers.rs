@@ -128,7 +128,7 @@ pub async fn candidatelist(
     if answer.is_empty() {
         resp = "<br /><br />No hanzi available for request".to_owned()
     } else {
-        resp = String::from("<br /><br />Select one hanzi from this list:</br>");
+        resp = String::from("<br />Select one hanzi from this list:<br>");
         resp.push_str(&answer)
     }
     resp

@@ -113,7 +113,15 @@ pub async fn getcandidatelist(query: String, data: Arc<AppState>) -> String {
     if veczi.len() == 0 {
         retour
     } else {
+        let mut curstrokes: i64 = 0;
         for zi in veczi {
+            let strokes = zi.strokes;
+            if strokes > curstrokes {
+                curstrokes = strokes;
+                retour.push_str(
+                    format!("<span class='candlist'>{} strokes :</span>", curstrokes).as_str(),
+                );
+            }
             retour.push_str("<button class='zilistbutton' onclick='add(\"");
             retour.push(zi.hanzi);
             retour.push_str("\")'>");
