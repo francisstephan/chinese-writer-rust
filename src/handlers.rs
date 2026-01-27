@@ -102,11 +102,21 @@ pub async fn pylist(
 
 pub async fn listdic(State(data): State<Arc<AppState>>) -> impl IntoResponse {
     let mut ctx = tera::Context::new();
-    ctx.insert("query", "List dictionary");
+    ctx.insert("query", "List dictionary by pinyin");
     let query = "SELECT id, pinyin_ton, unicode, sens, strokes FROM pyhz ORDER BY pinyin_ton, strokes, unicode";
     let disp = dbase::read_query(query, &data).await;
     ctx.insert("dico", &disp);
     let output = TERA.render("components/zilist.html", &ctx);
+    Html(output.unwrap())
+}
+
+pub async fn liststroke(State(data): State<Arc<AppState>>) -> impl IntoResponse {
+    let mut ctx = tera::Context::new();
+    ctx.insert("query", "List dictionary by stroke count");
+    let query = "SELECT id, pinyin_ton, unicode, sens, strokes FROM pyhz ORDER BY strokes, pinyin_ton, unicode";
+    let disp = dbase::read_query(query, &data).await;
+    ctx.insert("dico", &disp);
+    let output = TERA.render("components/zistroke.html", &ctx);
     Html(output.unwrap())
 }
 

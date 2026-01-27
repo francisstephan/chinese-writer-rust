@@ -33,8 +33,8 @@ async fn main() {
         .with_max_level(Level::DEBUG)
         .init();
     let pool = SqlitePool::connect("sqlite://vol/zidian.db").await.unwrap();
-
     let ap: AppState = AppState::new(pool);
+
     let router: Router<()> = Router::new()
         .route("/", get(handlers::index))
         .route("/size", get(handlers::size))
@@ -43,6 +43,7 @@ async fn main() {
         .route("/getpyform", get(handlers::getpyform))
         .route("/pylist", post(handlers::pylist))
         .route("/listdic", get(handlers::listdic))
+        .route("/liststroke", get(handlers::liststroke))
         .route("/cancel", get(handlers::cancel))
         .route("/zistring", get(handlers::writehanzistring))
         .route("/candidatelist", post(handlers::candidatelist))

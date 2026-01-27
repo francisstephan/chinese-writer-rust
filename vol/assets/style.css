@@ -153,6 +153,11 @@ td {
     font-size: 18px;
 }
 
+td.stc {
+    font-weight: bold;
+    color: red;
+}
+
 form.multi {
     /* https://www.digitalocean.com/community/tutorials/how-to-style-common-form-elements-with-css */
     margin-left: 10%;

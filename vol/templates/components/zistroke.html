@@ -1,0 +1,22 @@
+<div id="content">
+  {% if dico | length == 0 %}
+     No results for query '{{query}}'
+  {% else %}
+    Results for query '{{query}}':
+    <table><tr><td>Strokes</td><td>Pinyin</td><td>Unicode</td><td>Character</td><td>Translation</td></tr>
+    {% set strref = 0 %}
+    {% for zi in dico %}
+      <tr>
+      {% if zi.strokes > strref %}
+        {% set_global strref = zi.strokes %}
+        <td class="stc">{{ strref }}</td>
+      {% else %}
+        <td> </td>
+      {% endif %}
+      <td>{{zi.pinyin_ton}}</td><td>{{zi.unicode}}</td><td>{{zi.hanzi}}</td>
+      <td>{{zi.sens}}</td></tr>
+    {% endfor %}
+    </table>
+
+  {% endif %}
+</div>

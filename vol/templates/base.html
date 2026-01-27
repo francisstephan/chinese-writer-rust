@@ -34,7 +34,11 @@
                 </li>
                 <li class="shortitem" hx-trigger="click" hx-get="/listdic" hx-target="#content" hx-swap="innerHTML"
                     hx-on::before-request="hidemenu('lists')">
-                  <span>List dictionary</span>
+                  <span>List dic by pinyin</span>
+                </li>
+                <li class="shortitem" hx-trigger="click" hx-get="/liststroke" hx-target="#content" hx-swap="innerHTML"
+                    hx-on::before-request="hidemenu('lists')">
+                  <span>List by stroke count</span>
                 </li>
               </ul><!-- end "lists" ul -->
             </li><!-- end "lists" li -->
